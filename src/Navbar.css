@@ -1,0 +1,46 @@
+.navbar {
+  background-color: #333;
+  color: #fff;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 200px;
+}
+
+.navbar-links {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow: hidden; 
+}
+
+.navbar-links li {
+  margin: 0.5rem 0;
+}
+
+.navbar-links a {
+  color: #fff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.3s;
+  width: 100%;
+  background-color: transparent; /* Cambio aquí */
+}
+
+.navbar-links a:hover {
+  background-color: #555;
+}
+
+.navbar-links a svg {
+  margin-right: 0.5rem;
+}
