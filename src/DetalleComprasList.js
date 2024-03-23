@@ -6,7 +6,7 @@ function DetalleComprasList() {
     const [productos, setProductos] = useState([]);
     const [compra, setCompra] = useState({
         productoId: '',
-        cantidad: 1 // Por defecto, la cantidad es 1
+        cantidad: 1 
     });
     const [busqueda, setBusqueda] = useState('');
     const [showModal, setShowModal] = useState(false);

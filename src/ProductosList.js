@@ -90,7 +90,7 @@ function ProductosList() {
                     </div>
                 </div>
             )}
-            {/* Listado de productos */}
+            {}
             <div className="producto-lista">
                 <table>
                     <thead>
@@ -113,7 +113,7 @@ function ProductosList() {
                                 <td>{producto.categoria_id}</td>
                                 <td>
                                     <button onClick={() => eliminarProducto(producto.id)}>Eliminar</button>
-                                    {/* Puedes agregar el botón de editar aquí si lo deseas */}
+                                    {}
                                 </td>
                             </tr>
                         ))}
