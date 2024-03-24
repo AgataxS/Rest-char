@@ -9,6 +9,7 @@ function ClienteList() {
   const [clienteEnEdicion, setClienteEnEdicion] = useState(null);
   const [paginaActual, setPaginaActual] = useState(1);
   const [showModal, setShowModal] = useState(false);
+  const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
   const clientesPorPagina = 10;
 
   useEffect(() => {
@@ -51,6 +52,7 @@ function ClienteList() {
       .then((response) => {
         obtenerClientes();
         setClienteEnEdicion(null);
+        cerrarModal();
       })
       .catch((error) => {
         console.error('Error al modificar el cliente:', error);
@@ -71,12 +73,20 @@ function ClienteList() {
     setPaginaActual(numeroPagina);
   };
 
-  const abrirModal = () => {
+  const abrirModal = (cliente, accion) => {
+    setClienteSeleccionado(cliente);
+    if (accion === 'editar') {
+      setClienteEnEdicion(cliente);
+    } else {
+      setClienteEnEdicion(null);
+    }
     setShowModal(true);
   };
 
   const cerrarModal = () => {
     setShowModal(false);
+    setClienteSeleccionado(null);
+    setClienteEnEdicion(null);
   };
 
   return (
@@ -92,7 +102,7 @@ function ClienteList() {
           />
         </div>
         <div className="add-cliente">
-          <button onClick={abrirModal}>Agregar Nuevo Cliente</button>
+          <button onClick={() => abrirModal(null, 'agregar')}>Agregar Nuevo Cliente</button>
         </div>
       </div>
       <div className="cliente-lista">
@@ -101,101 +111,21 @@ function ClienteList() {
             <tr>
               <th>Nombres</th>
               <th>Apellidos</th>
-              <th>Dirección</th>
               <th>Teléfono</th>
-              <th>Email</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {clientesActuales.map((cliente) => (
               <tr key={cliente.id}>
-                {clienteEnEdicion && clienteEnEdicion.id === cliente.id ? (
-                  <>
-                    <td>
-                      <input
-                        type="text"
-                        value={clienteEnEdicion.nombres}
-                        onChange={(e) =>
-                          setClienteEnEdicion({
-                            ...clienteEnEdicion,
-                            nombres: e.target.value,
-                          })
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        value={clienteEnEdicion.apellidos}
-                        onChange={(e) =>
-                          setClienteEnEdicion({
-                            ...clienteEnEdicion,
-                            apellidos: e.target.value,
-                          })
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        value={clienteEnEdicion.direccion}
-                        onChange={(e) =>
-                          setClienteEnEdicion({
-                            ...clienteEnEdicion,
-                            direccion: e.target.value,
-                          })
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        value={clienteEnEdicion.telefono}
-                        onChange={(e) =>
-                          setClienteEnEdicion({
-                            ...clienteEnEdicion,
-                            telefono: e.target.value,
-                          })
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="email"
-                        value={clienteEnEdicion.email}
-                        onChange={(e) =>
-                          setClienteEnEdicion({
-                            ...clienteEnEdicion,
-                            email: e.target.value,
-                          })
-                        }
-                      />
-                    </td>
-                    <td>
-                      <button onClick={() => modificarCliente(clienteEnEdicion)}>
-                        Guardar
-                      </button>
-                      <button onClick={cancelarEdicionCliente}>Cancelar</button>
-                    </td>
-                  </>
-                ) : (
-                  <>
-                    <td>{cliente.nombres}</td>
-                    <td>{cliente.apellidos}</td>
-                    <td>{cliente.direccion}</td>
-                    <td>{cliente.telefono}</td>
-                    <td>{cliente.email}</td>
-                    <td>
-                      <button onClick={() => eliminarCliente(cliente.id)}>
-                        Eliminar
-                      </button>
-                      <button onClick={() => iniciarEdicionCliente(cliente)}>
-                        Editar
-                      </button>
-                    </td>
-                  </>
-                )}
+                <td>{cliente.nombres}</td>
+                <td>{cliente.apellidos}</td>
+                <td>{cliente.telefono}</td>
+                <td>
+                  <button onClick={() => abrirModal(cliente, 'ver')}>Más información</button>
+                  <button onClick={() => abrirModal(cliente, 'editar')}>Editar</button>
+                  <button onClick={() => eliminarCliente(cliente.id)}>Eliminar</button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -228,7 +158,100 @@ function ClienteList() {
             <span className="close" onClick={cerrarModal}>
               &times;
             </span>
-            <AgregarCliente onClose={cerrarModal} onClienteAgregado={obtenerClientes} />
+            {clienteEnEdicion ? (
+              <div>
+                <h2>Editar Cliente</h2>
+                <p>
+                  <label>
+                    Nombres:
+                    <input
+                      type="text"
+                      value={clienteEnEdicion.nombres}
+                      onChange={(e) =>
+                        setClienteEnEdicion({
+                          ...clienteEnEdicion,
+                          nombres: e.target.value,
+                        })
+                      }
+                    />
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    Apellidos:
+                    <input
+                      type="text"
+                      value={clienteEnEdicion.apellidos}
+                      onChange={(e) =>
+                        setClienteEnEdicion({
+                          ...clienteEnEdicion,
+                          apellidos: e.target.value,
+                        })
+                      }
+                    />
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    Dirección:
+                    <input
+                      type="text"
+                      value={clienteEnEdicion.direccion}
+                      onChange={(e) =>
+                        setClienteEnEdicion({
+                          ...clienteEnEdicion,
+                          direccion: e.target.value,
+                        })
+                      }
+                    />
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    Teléfono:
+                    <input
+                      type="text"
+                      value={clienteEnEdicion.telefono}
+                      onChange={(e) =>
+                        setClienteEnEdicion({
+                          ...clienteEnEdicion,
+                          telefono: e.target.value,
+                        })
+                      }
+                    />
+                  </label>
+                </p>
+                <p>
+                  <label>
+                    Email:
+                    <input
+                      type="email"
+                      value={clienteEnEdicion.email}
+                      onChange={(e) =>
+                        setClienteEnEdicion({
+                          ...clienteEnEdicion,
+                          email: e.target.value,
+                        })
+                      }
+                    />
+                  </label>
+                </p>
+                <div>
+                  <button onClick={() => modificarCliente(clienteEnEdicion)}>Guardar</button>
+                  <button onClick={cancelarEdicionCliente}>Cancelar</button>
+                </div>
+              </div>
+            ) : clienteSeleccionado ? (
+              <div>
+                <h2>{`${clienteSeleccionado.nombres} ${clienteSeleccionado.apellidos}`}</h2>
+                <p>Teléfono: {clienteSeleccionado.telefono}</p>
+                <p>Dirección: {clienteSeleccionado.direccion}</p>
+                <p>Email: {clienteSeleccionado.email}</p>
+                <button onClick={() => abrirModal(clienteSeleccionado, 'editar')}>Editar</button>
+              </div>
+            ) : (
+              <AgregarCliente onClose={cerrarModal} onClienteAgregado={obtenerClientes} />
+            )}
           </div>
         </div>
       )}
