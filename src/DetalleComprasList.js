@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import jsPDF from 'jspdf';
+import * as XLSX from 'xlsx';
 import './DetalleComprasList.css';
 
 function DetalleComprasList() {
     const [productos, setProductos] = useState([]);
-    const [compra, setCompra] = useState({
-        productoId: '',
-        cantidad: 1
-    });
     const [busqueda, setBusqueda] = useState('');
-    const [showModal, setShowModal] = useState(false);
-    const [alerta, setAlerta] = useState('');
 
     useEffect(() => {
         obtenerProductos();
@@ -27,40 +23,98 @@ function DetalleComprasList() {
             });
     };
 
-    const agregarProductoACompra = () => {
-        console.log('Producto agregado a la compra:', compra);
-        setAlerta('Producto agregado a la compra.');
-        setShowModal(true);
+    // Función para descargar los productos en formato PDF
+    const handleDownloadPDF = () => {
+        const pdfData = {
+            productos: productosFiltrados,
+            fecha: new Date().toLocaleDateString(),
+        };
+
+        const doc = new jsPDF();
+        doc.setFontSize(18);
+        doc.text('Lista de Productos', 20, 20);
+        doc.setFontSize(12);
+
+        let y = 30;
+        pdfData.productos.forEach((producto) => {
+            doc.text(`Nombre: ${producto.nombre}`, 20, y);
+            y += 10;
+            doc.text(`Descripción: ${producto.descripcion}`, 20, y);
+            y += 10;
+            doc.text(`Precio: ${producto.precio}`, 20, y);
+            y += 10;
+            doc.text(`Stock: ${producto.stock}`, 20, y);
+            y += 15;
+        });
+
+        doc.save('lista-productos.pdf');
     };
 
-    const handleCloseModal = () => {
-        setShowModal(false);
+    // Función para descargar los productos en formato Excel
+    const handleDownloadExcel = () => {
+        const excelData = [
+            ['Nombre', 'Descripción', 'Precio', 'Stock'],
+            ...productosFiltrados.map((producto) => [
+                producto.nombre,
+                producto.descripcion,
+                producto.precio,
+                producto.stock,
+            ]),
+        ];
+
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Productos');
+        XLSX.writeFile(workbook, 'lista-productos.xlsx');
     };
 
+    // Función para imprimir los productos
+    const handlePrint = () => {
+        const printData = `
+            <h1>Lista de Productos</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${productosFiltrados
+                        .map(
+                            (producto) => `
+                            <tr>
+                                <td>${producto.nombre}</td>
+                                <td>${producto.descripcion}</td>
+                                <td>${producto.precio}</td>
+                                <td>${producto.stock}</td>
+                            </tr>
+                        `
+                        )
+                        .join('')}
+                </tbody>
+            </table>
+        `;
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.open();
+        printWindow.document.write(printData);
+        printWindow.document.close();
+        printWindow.print();
+    };
+
+    // Filtra los productos según la búsqueda
     const productosFiltrados = productos.filter(producto =>
         producto.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
         producto.descripcion.toLowerCase().includes(busqueda.toLowerCase())
     );
 
-    const handleDownloadPDF = () => {
-        // Implementa la lógica para descargar los productos en formato PDF
-        console.log('Descargar PDF');
-    };
-
-    const handleDownloadExcel = () => {
-        // Implementa la lógica para descargar los productos en formato Excel
-        console.log('Descargar Excel');
-    };
-
-    const handlePrint = () => {
-        // Implementa la lógica para imprimir los productos
-        console.log('Imprimir');
-    };
-
     return (
         <div className="detalle-compras-container">
             <h1>Detalle de Compras</h1>
-            <div className="search-add-container">
+            <div className="search-download-container">
                 <div className="search-bar">
                     <input
                         type="text"
@@ -68,25 +122,6 @@ function DetalleComprasList() {
                         value={busqueda}
                         onChange={(e) => setBusqueda(e.target.value)}
                     />
-                </div>
-                <div className="add-compra">
-                    <label>Producto:</label>
-                    <select
-                        value={compra.productoId}
-                        onChange={(e) => setCompra({ ...compra, productoId: e.target.value })}
-                    >
-                        <option value="">Seleccionar Producto</option>
-                        {productos.map(producto => (
-                            <option key={producto.id} value={producto.id}>{producto.nombre}</option>
-                        ))}
-                    </select>
-                    <label>Cantidad:</label>
-                    <input
-                        type="number"
-                        value={compra.cantidad}
-                        onChange={(e) => setCompra({ ...compra, cantidad: e.target.value })}
-                    />
-                    <button onClick={agregarProductoACompra}>Agregar a Compra</button>
                 </div>
                 <div className="download-options">
                     <button onClick={handleDownloadPDF}>Descargar PDF</button>
@@ -106,14 +141,6 @@ function DetalleComprasList() {
                     </li>
                 ))}
             </ul>
-            {showModal && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <span className="close" onClick={handleCloseModal}>&times;</span>
-                        <p>{alerta}</p>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

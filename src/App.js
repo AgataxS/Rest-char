@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'; // Corrige la importación de Routes
 import Navbar from './Navbar';
 import CategoriaList from './CategoriaList';
-import ClienteList from './ClienteList';
+import ClienteList from './Componentes/Cliente/ClienteList';
 import MovimientosList from './MovimientosList';
 import BonificacionesList from './BonificacionesList';
 import ComprasList from './ComprasList';
@@ -13,7 +13,7 @@ import ProductosList from './ProductosList';
 import ProveedoresList from './ProveedoresList';
 import VentasList from './VentasList';
 import ModificarCliente from './ModificarCliente';
-import AgregarCliente from './AgregarCliente'; 
+import AgregarCliente from './Componentes/Cliente/AgregarCliente'; 
 import AgregarProveedor from './AgregarProveedor'; 
 function App() {
     return (

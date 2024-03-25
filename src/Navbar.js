@@ -1,12 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
-import { FaHome, FaList, FaUserFriends, FaMoneyBillWave, FaShoppingCart, FaFileInvoiceDollar, FaMoneyCheckAlt, FaMoneyBillAlt, FaBoxOpen, FaTruckMoving, FaHandHoldingUsd } from 'react-icons/fa';
+import { FaBars, FaTimes, FaHome, FaList, FaUserFriends, FaMoneyBillWave, FaShoppingCart, FaFileInvoiceDollar, FaMoneyCheckAlt, FaMoneyBillAlt, FaBoxOpen, FaTruckMoving, FaHandHoldingUsd } from 'react-icons/fa';
 
 function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
     <nav className="navbar">
-      <ul className="navbar-links">
+      <div className="navbar-toggle" onClick={toggleMenu}>
+        {isOpen ? <FaTimes /> : <FaBars />}
+      </div>
+      <ul className={isOpen ? "navbar-links active" : "navbar-links"}>
         <li>
           <Link to="/">
             <FaHome /> Inicio

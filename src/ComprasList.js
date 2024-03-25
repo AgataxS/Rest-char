@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import './ComprasList.css'
+import './ComprasList.css';
 
 function ComprasList() {
   const [compras, setCompras] = useState([]);
@@ -13,6 +13,16 @@ function ComprasList() {
   const [showModal, setShowModal] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [comprasPorPagina, setComprasPorPagina] = useState(5);
+  const [showProductForm, setShowProductForm] = useState(false);
+  const [nuevoProducto, setNuevoProducto] = useState({
+    nombre: '',
+    descripcion: '',
+    precio: '',
+    stock: '',
+    categoria_id: '',
+  });
 
   useEffect(() => {
     obtenerCompras();
@@ -114,6 +124,30 @@ function ComprasList() {
     setAlertMessage('');
   };
 
+  const agregarProducto = (e) => {
+    e.preventDefault();
+    // Agregar la lógica para enviar el nuevo producto a la API
+    console.log('Nuevo producto:', nuevoProducto);
+    setNuevoProducto({
+      nombre: '',
+      descripcion: '',
+      precio: '',
+      stock: '',
+      categoria_id: '',
+    });
+    setShowProductForm(false);
+  };
+
+  const handleNuevoProductoChange = (e) => {
+    setNuevoProducto({ ...nuevoProducto, [e.target.name]: e.target.value });
+  };
+
+  const indexOfLastCompra = currentPage * comprasPorPagina;
+  const indexOfFirstCompra = indexOfLastCompra - comprasPorPagina;
+  const comprasActuales = compras.slice(indexOfFirstCompra, indexOfLastCompra);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
     <div className="container">
       <h1>Dashboard de Compras</h1>
@@ -132,6 +166,9 @@ function ComprasList() {
       <div className="nueva-compra">
         <button className="btn" onClick={() => setShowModal(true)}>
           <i className="fas fa-plus"></i> Nueva Compra
+        </button>
+        <button className="btn" onClick={() => setShowProductForm(true)}>
+          <i className="fas fa-plus"></i> Nuevo Producto
         </button>
       </div>
 
@@ -181,13 +218,76 @@ function ComprasList() {
         </div>
       )}
 
+      {showProductForm && (
+        <div className="modal">
+          <div className="modal-content">
+            <span className="close" onClick={() => setShowProductForm(false)}>
+              &times;
+            </span>
+            <h2>Nuevo Producto</h2>
+            <form onSubmit={agregarProducto}>
+              <div>
+                <input
+                  type="text"
+                  name="nombre"
+                  value={nuevoProducto.nombre}
+                  placeholder="Nombre"
+                  onChange={handleNuevoProductoChange}
+                />
+              </div>
+              <div>
+                <input
+                  type="text"
+                  name="descripcion"
+                  value={nuevoProducto.descripcion}
+                  placeholder="Descripción"
+                  onChange={handleNuevoProductoChange}
+                />
+              </div>
+              <div>
+                <input
+                  type="text"
+                  name="precio"
+                  value={nuevoProducto.precio}
+                  placeholder="Precio"
+                  onChange={handleNuevoProductoChange}
+                />
+              </div>
+              <div>
+                <input
+                  type="text"
+                  name="stock"
+                  value={nuevoProducto.stock}
+                  placeholder="Stock"
+                  onChange={handleNuevoProductoChange}
+                />
+              </div>
+              <div>
+                <input
+                  type="text"
+                  name="categoria_id"
+                  value={nuevoProducto.categoria_id}
+                  placeholder="Categoría ID"
+                  onChange={handleNuevoProductoChange}
+                />
+              </div>
+              <div>
+                <button type="submit" className="btn">
+                  <i className="fas fa-plus"></i> Agregar Producto
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <div className="lista-compras">
         <h2>
           <i className="fas fa-list"></i> Compras Realizadas
         </h2>
         <ul>
-          {compras.length > 0 ? (
-            compras.map((compra) => (
+          {comprasActuales.length > 0 ? (
+            comprasActuales.map((compra) => (
               <li key={compra.id} className="compra-item">
                 <div>
                   <strong>Proveedor ID:</strong> {compra.proveedorId}
@@ -215,6 +315,29 @@ function ComprasList() {
             <li>No hay compras disponibles</li>
           )}
         </ul>
+        <div className="pagination">
+          <button
+            onClick={() => paginate(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Anterior
+          </button>
+          {Array.from(Array(Math.ceil(compras.length / comprasPorPagina)), (_, i) => (
+            <button
+              key={i + 1}
+              onClick={() => paginate(i + 1)}
+              className={currentPage === i + 1 ? 'active' : ''}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => paginate(currentPage + 1)}
+            disabled={indexOfLastCompra >= compras.length}
+          >
+            Siguiente
+          </button>
+        </div>
       </div>
     </div>
   );

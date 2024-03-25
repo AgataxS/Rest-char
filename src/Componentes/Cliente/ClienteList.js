@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './ClienteList.css';
-import AgregarCliente from './AgregarCliente';
+import './ClienteList.scss';
 
 function ClienteList() {
   const [clientes, setClientes] = useState([]);
@@ -10,6 +9,13 @@ function ClienteList() {
   const [paginaActual, setPaginaActual] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
+  const [nuevoCliente, setNuevoCliente] = useState({
+    nombres: '',
+    apellidos: '',
+    direccion: '',
+    telefono: '',
+    email: '',
+  });
   const clientesPorPagina = 10;
 
   useEffect(() => {
@@ -79,6 +85,13 @@ function ClienteList() {
       setClienteEnEdicion(cliente);
     } else {
       setClienteEnEdicion(null);
+      setNuevoCliente({
+        nombres: '',
+        apellidos: '',
+        direccion: '',
+        telefono: '',
+        email: '',
+      });
     }
     setShowModal(true);
   };
@@ -87,6 +100,26 @@ function ClienteList() {
     setShowModal(false);
     setClienteSeleccionado(null);
     setClienteEnEdicion(null);
+    setNuevoCliente({
+      nombres: '',
+      apellidos: '',
+      direccion: '',
+      telefono: '',
+      email: '',
+    });
+  };
+
+  const agregarCliente = (e) => {
+    e.preventDefault();
+    axios
+      .post('https://proyecto.forcewillcode.website/api/clientes', nuevoCliente)
+      .then((response) => {
+        obtenerClientes();
+        cerrarModal();
+      })
+      .catch((error) => {
+        console.error('Error al agregar el cliente:', error);
+      });
   };
 
   return (
@@ -250,7 +283,50 @@ function ClienteList() {
                 <button onClick={() => abrirModal(clienteSeleccionado, 'editar')}>Editar</button>
               </div>
             ) : (
-              <AgregarCliente onClose={cerrarModal} onClienteAgregado={obtenerClientes} />
+              <div className="container">
+                <h2>Agregar Nuevo Cliente</h2>
+                <form onSubmit={agregarCliente}>
+                  <div className="form-group">
+                    <input
+                      type="text"
+                      placeholder="Nombres"
+                      value={nuevoCliente.nombres}
+                      onChange={(e) => setNuevoCliente({ ...nuevoCliente, nombres: e.target.value })}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Apellidos"
+                      value={nuevoCliente.apellidos}
+                      onChange={(e) => setNuevoCliente({ ...nuevoCliente, apellidos: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <input
+                      type="text"
+                      placeholder="Dirección"
+                      value={nuevoCliente.direccion}
+                      onChange={(e) => setNuevoCliente({ ...nuevoCliente, direccion: e.target.value })}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Teléfono"
+                      value={nuevoCliente.telefono}
+                      onChange={(e) => setNuevoCliente({ ...nuevoCliente, telefono: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <input
+                      type="email"
+                      placeholder="Email"
+                      value={nuevoCliente.email}
+                      onChange={(e) => setNuevoCliente({ ...nuevoCliente, email: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <button type="submit">Agregar</button>
+                  </div>
+                </form>
+              </div>
             )}
           </div>
         </div>
